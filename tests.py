@@ -11,7 +11,7 @@ class Tests(unittest.TestCase):
         self.af.touch()
     
     def tearDown(self):
-        os.remove("test.txt")
+        self.m.delete()
 
     def test_file_naming(self):
         self.assertEqual(str(self.af), "test.txt")
