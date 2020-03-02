@@ -29,9 +29,10 @@ class Tests(unittest.TestCase):
         self.assertEqual(self.m.get_cache(), ["cool", "things"])
         self.assertEqual(
             self.m.get_file_contents_singlestring(),
-            textwrap.dedent("""\
-                cool
-                things"""
+            textwrap.dedent(
+                """\
+                    cool
+                    things"""  # noqa
             )  # noqa
         )
 
