@@ -1,6 +1,5 @@
 import unittest
 import filehandlers
-import os
 import textwrap
 
 
@@ -9,7 +8,7 @@ class Tests(unittest.TestCase):
         self.af = filehandlers.AbstractFile("test.txt")
         self.m = filehandlers.FileManipulator(self.af)
         self.af.touch()
-    
+
     def tearDown(self):
         self.m.delete()
 
@@ -33,7 +32,7 @@ class Tests(unittest.TestCase):
             textwrap.dedent("""\
                 cool
                 things"""
-            )
+            )  # noqa
         )
 
 
