@@ -12,25 +12,21 @@ class File:
 
     cache: List[str]
     name: str
-    allow_non_existing_file: bool
 
     def __init__(
         self,
-        name: str,
-        allow_non_existing_file: Optional[bool] = True
+        name: str
     ):
         """
         Creates the class.
 
         Args:
             name: The file name.
-            allow_non_existing_file: If the file doesn't need to exist.
 
         Returns:
             Nothing.
         """
         self.name = name
-        self.allow_non_existing_file = allow_non_existing_file
         self.refresh()
 
     def __str__(self) -> str:
