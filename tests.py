@@ -39,7 +39,7 @@ class Tests(unittest.TestCase):
 
     @unittest.skipUnless(os.getenv("CIRRUS_CI") is not None, reason="not CI")
     def test_abspath(self):
-        self.assertEqual(abs(self.af), "")
+        self.assertEqual(abs(self.af), "/tmp/cirrus-ci-build/test.txt")
 
 
 if __name__ == "__main__":
