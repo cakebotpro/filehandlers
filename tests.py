@@ -41,6 +41,10 @@ class Tests(unittest.TestCase):
     def test_abspath(self):
         self.assertEqual(abs(self.af), "/tmp/cirrus-ci-build/test.txt")
 
+    def test_semistrict_types(self):
+        with self.assertRaises(TypeError):
+            filehandlers.FileManipulator(0)  # wrong type on purpose
+
 
 if __name__ == "__main__":
     unittest.main()
