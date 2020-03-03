@@ -5,30 +5,29 @@ import textwrap
 
 class Tests(unittest.TestCase):
     def setUp(self):
-        self.af = filehandlers.AbstractFile("test.txt")
-        self.m = filehandlers.FileManipulator(self.af)
-        self.af.touch()
+        self.f = filehandlers.File("test.txt")
+        self.f.touch()
 
     def tearDown(self):
-        self.m.delete()
+        self.f.delete()
 
     def test_file_naming(self):
-        self.assertEqual(str(self.af), "test.txt")
+        self.assertEqual(self.f.get_file_name(), "test.txt")
 
     def test_file_exists(self):
-        self.assertTrue(self.af.exists())
+        self.assertTrue(self.f.exists())
 
     def test_writing_to_files(self):
-        self.assertTrue(self.af.exists())
-        b = self.af.wrap()
+        self.assertTrue(self.f.exists())
+        b = self.f.wrap()
         self.assertEqual(b.read(), "")
         b.close()  # to fix resourcewarning
-        self.assertEqual(self.m.get_cache(), [])
-        self.m.write_to_file("cool\nthings")
-        self.m.refresh()
-        self.assertEqual(self.m.get_cache(), ["cool", "things"])
+        self.assertEqual(self.f.get_cache(), [])
+        self.f.write_to_file("cool\nthings")
+        self.f.refresh()
+        self.assertEqual(self.f.get_cache(), ["cool", "things"])
         self.assertEqual(
-            self.m.get_file_contents_singlestring(),
+            self.f.get_file_contents_singlestring(),
             textwrap.dedent(
                 """\
                     cool

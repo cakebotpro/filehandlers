@@ -7,29 +7,49 @@ from json import loads
 from typing import Optional, Dict, Any, List
 
 
-class AbstractFile:
+class File:
     """A file in instance form."""
 
-    def __init__(self, name: str):
+    cache: List[str]
+    name: str
+    allow_non_existing_file: bool
+
+    def __init__(
+        self,
+        name: str,
+        allow_non_existing_file: Optional[bool] = True
+    ):
         """
         Creates the class.
 
         Args:
             name: The file name.
+            allow_non_existing_file: If the file doesn't need to exist.
 
         Returns:
             Nothing.
         """
         self.name = name
+        self.allow_non_existing_file = allow_non_existing_file
+        self.refresh()
 
     def __str__(self) -> str:
         """
-        Override of `__str__`.
+        Override of `self.__str__` and `str(self)`.
 
         Returns:
             The name of the file.
         """
         return self.name
+
+    def __abs__(self) -> str:
+        """
+        Override of `self.__abs__` and `abs(self)`
+
+        Returns:
+            The absolute path to the file.
+        """
+        return os.path.abspath(self.get_file_name())
 
     def wrap(self):
         """
@@ -43,7 +63,7 @@ class AbstractFile:
             PermissionError: If you don't have needed permission to access the file.
             FileNotFoundError: If the file doesn't exist.
         """
-        return open(str(self), mode="r")
+        return open(self.get_file_name(), mode="r")
 
     def touch(self):
         """
@@ -58,7 +78,7 @@ class AbstractFile:
         Raises:
             PermissionError: If you don't have needed permission to access the file.
         """
-        open(str(self), mode="a").close()
+        open(self.get_file_name(), mode="a").close()
 
     def exists(self, touch_if_false: Optional[bool] = False) -> bool:
         """
@@ -80,42 +100,6 @@ class AbstractFile:
                 self.touch()
         return e
 
-
-class FileManipulator:
-    """Class used for managing an assigned file."""
-
-    cache: List[str]
-    _linked_abstractfile: AbstractFile
-
-    def __init__(self, abstract_file: AbstractFile):
-        """
-        Create class instance.
-
-        Arguments:
-            abstract_file: The AbstractFile instance.
-
-        Returns:
-            Nothing.
-
-        Raises:
-            TypeError: If the argument isn't an AbstractFile.
-        """
-        self.cache = []
-        if type(abstract_file) == AbstractFile:
-            self._linked_abstractfile = abstract_file
-        else:
-            raise TypeError("Wrong type! Please pass AbstractFile or string")
-        self.refresh()
-
-    def get_file(self) -> AbstractFile:
-        """
-        Get the AbstractFile instance.
-
-        Returns:
-            The AbstractFile instance.
-        """
-        return self._linked_abstractfile
-
     def get_file_name(self) -> str:
         """
         Get the file's name.
@@ -123,7 +107,7 @@ class FileManipulator:
         Returns:
             The file's name.
         """
-        return str(self.get_file())
+        return str(self)
 
     def refresh(self, slim: Optional[bool] = False):
         """
@@ -138,18 +122,19 @@ class FileManipulator:
         Raises:
             PermissionError: If you don't have needed permission to access the file.
         """
-        if not self.get_file().exists():
+        if not self.exists():
             # file doesn't exist, exit early
             return
 
         with open(self.get_file_name(), mode="r") as fh:
             self.cache = fh.readlines()
             # strip newlines
-            for h, g in enumerate(self.cache):
-                if slim and self.cache[h] == "":
-                    self.cache.pop(h)
+            # pylint: disable=unused-variable
+            for index, element in enumerate(self.cache):
+                if slim and self.cache[index] == "":
+                    self.cache.pop(index)
                 else:
-                    self.cache[h] = self.cache[h].replace("\n", "")
+                    self.cache[index] = self.cache[index].replace("\n", "")
             fh.close()
 
     def get_cache(self) -> List[str]:
@@ -160,7 +145,7 @@ class FileManipulator:
         last refresh.
 
         Refreshes are called when this class is created,
-        or when manually triggered by [refresh].
+        or when manually triggered by calling the `refresh` method.
 
         Returns:
             The cache.
@@ -186,18 +171,9 @@ class FileManipulator:
         Returns:
             Nothing.
         """
-        e = open(str(self.get_file()), mode="w")
+        e = open(self.get_file_name(), mode=OpenModes.WRITE.value)
         e.write(string)
         e.close()
-
-    def wrap_file(self) -> io.TextIOWrapper:
-        """
-        Shortcut for `self.get_file().wrap()`.
-
-        Returns:
-            The wrapped file.
-        """
-        return self._linked_abstractfile.wrap()
 
     def clear_file(self):
         """
@@ -212,7 +188,7 @@ class FileManipulator:
             PermissionError: If you don't have needed permission to access the file.
             FileNotFoundError: If the file doesn't exist.
         """
-        open(str(self.get_file()), mode="w").close()
+        open(self.get_file_name(), mode=OpenModes.CLEAR.value).close()
 
     def get_file_contents_singlestring(self) -> str:
         """
@@ -228,9 +204,12 @@ class FileManipulator:
             PermissionError: If you don't have needed permission to access the file.
             FileNotFoundError: If the file doesn't exist.
         """
-        return open(str(self.get_file()), mode="r").read()
+        o = open(self.get_file_name(), mode=OpenModes.READ.value)
+        data = o.read()
+        o.close()
+        return data
 
-    def delete(self):
+    def delete(self) -> bool:
         """
         Delete the file if it exists.
 
@@ -240,8 +219,8 @@ class FileManipulator:
         Raises:
             PermissionError: If you don't have needed permission to access the file.
         """
-        if self.get_file().exists():
-            os.remove(str(self.get_file()))
+        if self.exists():
+            os.remove(self.get_file_name())
             return True
         return False
 
