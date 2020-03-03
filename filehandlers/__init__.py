@@ -24,12 +24,23 @@ class AbstractFile:
 
     def __str__(self) -> str:
         """
-        Override of `__str__`.
+        Override of `str()` and `__str__`.
 
         Returns:
             The name of the file.
         """
         return self.name
+
+    def __abs__(self) -> str:
+        """
+        Override of `abs()` and `__abs__`.
+
+        Provides the absolute path to the file.
+
+        Returns:
+            The absolute path to the file.
+        """
+        return os.path.abspath(self.name)
 
     def wrap(self):
         """
@@ -228,7 +239,10 @@ class FileManipulator:
             PermissionError: If you don't have needed permission to access the file.
             FileNotFoundError: If the file doesn't exist.
         """
-        return open(str(self.get_file()), mode="r").read()
+        o = open(str(self.get_file()), mode="r")
+        string = o.read()
+        o.close()
+        return string
 
     def delete(self):
         """

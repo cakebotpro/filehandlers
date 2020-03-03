@@ -1,6 +1,7 @@
 import unittest
 import filehandlers
 import textwrap
+import os
 
 
 class Tests(unittest.TestCase):
@@ -35,6 +36,10 @@ class Tests(unittest.TestCase):
                     things"""  # noqa
             )  # noqa
         )
+
+    @unittest.skipUnless(os.getenv("CIRRUS_CI") is not None, reason="not CI")
+    def test_abspath(self):
+        self.assertEqual(abs(self.af), "")
 
 
 if __name__ == "__main__":
