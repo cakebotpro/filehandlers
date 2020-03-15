@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.0.0
+
+```diff
++ Added tests and code coverage
++ Added abs() override to AbstractFile
+* Fixed certain resource leaks
+```
+
 ## v2.12.1
 
 ```diff
